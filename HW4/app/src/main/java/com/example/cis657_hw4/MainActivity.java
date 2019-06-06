@@ -2,9 +2,11 @@ package com.example.cis657_hw4;
 
 import android.content.Intent;
 import android.location.Location;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.inputmethod.EditorInfo;
@@ -14,8 +16,10 @@ import android.widget.TextView;
 
 
 import com.example.cis657_hw4.dummy.HistoryContent;
+import com.google.android.libraries.places.api.Places;
 
 import org.joda.time.DateTime;
+import org.parceler.Parcels;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -24,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final int DIST_UNIT = 1;
     public static int HISTORY_RESULT = 2;
+    final int NEW_LOCATION_REQUEST = 3;
 
     Boolean begin = true;
     Location loc1 = new Location("GPS");
@@ -48,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
     Button CalculateButton;
     Button ClearButton;
+    Button SearchButton;
 
     int count =0;
 //onCreate starts up the application
@@ -69,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
         CalculateButton = (Button) findViewById(R.id.CalculateButton);
         ClearButton = (Button) findViewById(R.id.ClearButton);
+        SearchButton = (Button) findViewById(R.id.searchbutton);
 
         //Sets an action listener for the button that gives instructions for post-button push
         CalculateButton.setOnClickListener(v -> {
@@ -107,6 +114,13 @@ public class MainActivity extends AppCompatActivity {
             long1.onEditorAction(EditorInfo.IME_ACTION_DONE);
             long2.onEditorAction(EditorInfo.IME_ACTION_DONE);
         });
+
+        SearchButton.setOnClickListener(y -> {
+            Intent newLocation = new Intent(MainActivity.this, LocationSearchActivity.class);
+            startActivityForResult(newLocation, NEW_LOCATION_REQUEST);
+        });
+
+        Places.initialize(getApplicationContext(),"");
 
     }
 
@@ -170,6 +184,16 @@ public class MainActivity extends AppCompatActivity {
             this.lat2.setText(vals[2]);
             this.long2.setText(vals[3]);
             this.calcDistance();  // code that updates the calcs.
+        }
+        else if (resultCode == NEW_LOCATION_REQUEST) {
+            if (data != null && data.hasExtra("Location")){
+                Parcelable parcel = data.getParcelableExtra("Location");
+                LocationLookup loc = Parcels.unwrap(parcel);
+                Log.d("MainActivity","New Location: (" + loc.origLat +","+ loc.origLong +","
+                        + loc.endLat +","+ loc.endLong +")");
+            }
+            else
+                super.onActivityResult(requestCode, resultCode, data);
         }
 
 

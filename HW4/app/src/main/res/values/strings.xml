@@ -11,4 +11,11 @@
     </string-array>
     <string name="title_activity_delete_me">DeleteMe</string>
     <string name="title_activity_history">HistoryActivity</string>
+    <string name="title_activity_location_search">New Location</string>
+    <string name="journal_name">Enter Journal Name</string>
+    <string name="loc1_name">Enter First Location</string>
+    <string name="loc2_name">Enter Second Location</string>
+    <string name="start_date_hint">Find Date</string>
+    <string name="loc_interval">Calculation Date</string>
+    <string name="loc_info">Location Information</string>
 </resources>
