@@ -1,15 +1,17 @@
 package com.example.cis657_hw4;
 
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.widget.DatePicker;
 import android.widget.TextView;
-
-import com.borax12.materialdaterangepicker.date.DatePickerDialog;
+//
+//import com.borax12.materialdaterangepicker.date.DatePickerDialog;
 import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
@@ -58,8 +60,8 @@ public class LocationSearchActivity extends AppCompatActivity implements DatePic
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         DateTime today = DateTime.now();
-        dpDialog = DatePickerDialog.newInstance(this,
-                today.getYear(), today.getMonthOfYear() - 1, today.getDayOfMonth());
+
+        dpDialog = new DatePickerDialog(this, this, today.getYear(), today.getMonthOfYear() - 1, today.getDayOfMonth());
 
 
         calculationDateView.setText(formatted(today));
@@ -88,7 +90,7 @@ public class LocationSearchActivity extends AppCompatActivity implements DatePic
 
     @OnClick({R.id.calculation_date})
     public void datePressed() {
-        dpDialog.show(getFragmentManager(), "daterangedialog");
+        dpDialog.show();
     }
 
     @OnClick(R.id.fab)
@@ -144,9 +146,14 @@ public class LocationSearchActivity extends AppCompatActivity implements DatePic
             super.onActivityResult(requestCode, resultCode, data);
     }
 
+//    @Override
+//    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth, int yearEnd, int monthOfYearEnd, int dayOfMonthEnd) {
+//
+//    }
+
     @Override
-    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth, int yearEnd, int monthOfYearEnd, int dayOfMonthEnd) {
-        calculationDate = new DateTime(year, monthOfYear + 1, dayOfMonth, 0, 0);
+    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+        calculationDate = new DateTime(year, month + 1, dayOfMonth, 0, 0);
         calculationDateView.setText(formatted(calculationDate));
     }
 }
