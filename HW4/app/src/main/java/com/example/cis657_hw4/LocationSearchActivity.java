@@ -95,11 +95,11 @@ public class LocationSearchActivity extends AppCompatActivity implements DatePic
     public void FABPressed() {
         Intent result = new Intent();
         DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
-        currentLocation.calculationDate = fmt.print(calculationDate);
+        currentLocation.calculationDate = calculationDate;
         // add more code to initialize the rest of the fields
         Parcelable parcel = Parcels.wrap(currentLocation);
         result.putExtra("Location", parcel);
-        setResult(RESULT_OK, result);
+        setResult(MainActivity.NEW_LOCATION_REQUEST, result);
         finish();
     }
 
@@ -115,6 +115,7 @@ public class LocationSearchActivity extends AppCompatActivity implements DatePic
                 Place pl = Autocomplete.getPlaceFromIntent(data);
                 currentLocation.origLat = pl.getLatLng().latitude;
                 currentLocation.origLong = pl.getLatLng().longitude;
+                location1.setText(pl.getName());
 
                 Log.i(TAG, "onActivityResult: " + pl.getName() + "/" + pl.getAddress());
 
@@ -129,6 +130,7 @@ public class LocationSearchActivity extends AppCompatActivity implements DatePic
                 Place pl = Autocomplete.getPlaceFromIntent(data);
                 currentLocation.endLat = pl.getLatLng().latitude;
                 currentLocation.endLong = pl.getLatLng().longitude;
+                location2.setText(pl.getName());
 
                 Log.i(TAG, "onActivityResult: " + pl.getName() + "/" + pl.getAddress());
 

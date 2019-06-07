@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final int DIST_UNIT = 1;
     public static int HISTORY_RESULT = 2;
-    final int NEW_LOCATION_REQUEST = 3;
+    public static final int NEW_LOCATION_REQUEST = 3;
 
     Boolean begin = true;
     Location loc1 = new Location("GPS");
@@ -191,6 +191,19 @@ public class MainActivity extends AppCompatActivity {
                 LocationLookup loc = Parcels.unwrap(parcel);
                 Log.d("MainActivity","New Location: (" + loc.origLat +","+ loc.origLong +","
                         + loc.endLat +","+ loc.endLong +")");
+
+                this.lat1.setText(""+loc.origLat);
+                this.long1.setText(""+loc.origLong);
+                this.lat2.setText(""+loc.endLat);
+                this.long2.setText(""+loc.endLong);
+                lat1str=""+loc.origLat;
+                long1str=""+loc.origLong;
+                lat2str=""+loc.endLat;
+                long2str=""+loc.endLong;
+                HistoryContent.HistoryItem item = new HistoryContent.HistoryItem(lat1str,
+                        long1str, lat2str, long2str, loc.calculationDate);
+                HistoryContent.addItem(item);
+                this.calcDistance();  // code that updates the calcs.
             }
             else
                 super.onActivityResult(requestCode, resultCode, data);
