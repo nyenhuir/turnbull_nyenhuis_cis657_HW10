@@ -98,6 +98,7 @@ public class LocationSearchActivity extends AppCompatActivity implements DatePic
         Intent result = new Intent();
         DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
         currentLocation.calculationDate = calculationDate;
+        currentLocation._key = fmt.print(calculationDate);
         // add more code to initialize the rest of the fields
         Parcelable parcel = Parcels.wrap(currentLocation);
         result.putExtra("Location", parcel);

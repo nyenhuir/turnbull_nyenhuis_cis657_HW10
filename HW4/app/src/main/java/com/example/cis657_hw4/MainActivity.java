@@ -15,8 +15,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 
-import com.example.cis657_hw4.dummy.HistoryContent;
 import com.google.android.libraries.places.api.Places;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -109,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
                 entry.setEndLat(Double.parseDouble(lat2str));
                 entry.setEndLong(Double.parseDouble(long2str));
                 DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+//                entry.setCalculationDate(DateTime.now());
                 entry.set_key(fmt.print(DateTime.now()));
                 topRef.push().setValue(entry);
                 calcDistance();
@@ -138,10 +141,21 @@ public class MainActivity extends AppCompatActivity {
         allHistory = new ArrayList<LocationLookup>();
     }
 
+
+
     @Override
     public void onResume(){
         super.onResume();
+        allHistory.clear();
         topRef = FirebaseDatabase.getInstance().getReference();
+        topRef.addChildEventListener (chEvListener);
+        //topRef.addValueEventListener(valEvListener);
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        topRef.removeEventListener(chEvListener);
     }
 
 
@@ -198,11 +212,34 @@ public class MainActivity extends AppCompatActivity {
             long2.setText(data.getStringExtra("long2"));
         }
         else if (resultCode == HISTORY_RESULT) {
-            String[] vals = data.getStringArrayExtra("item");
-            this.lat1.setText(vals[0]);
-            this.long1.setText(vals[1]);
-            this.lat2.setText(vals[2]);
-            this.long2.setText(vals[3]);
+//            String[] vals = data.getStringArrayExtra("item");
+//////            this.lat1.setText(vals[0]);
+//////            this.long1.setText(vals[1]);
+//////            this.lat2.setText(vals[2]);
+//////            this.long2.setText(vals[3]);
+//////            this.calcDistance();  // code that updates the calcs.
+
+            Parcelable parcel = data.getParcelableExtra("item");
+            LocationLookup loc = Parcels.unwrap(parcel);
+            Log.d("MainActivity","Retrieved: (" + loc.origLat +","+ loc.origLong +","
+                    + loc.endLat +","+ loc.endLong +")");
+
+            this.lat1.setText(""+loc.origLat);
+            this.long1.setText(""+loc.origLong);
+            this.lat2.setText(""+loc.endLat);
+            this.long2.setText(""+loc.endLong);
+            lat1str=""+loc.origLat;
+            long1str=""+loc.origLong;
+            lat2str=""+loc.endLat;
+            long2str=""+loc.endLong;
+//            LocationLookup entry = new LocationLookup();
+//            entry.setOrigLat(Double.parseDouble(lat1str));
+//            entry.setOrigLong(Double.parseDouble(long1str));
+//            entry.setEndLat(Double.parseDouble(lat2str));
+//            entry.setEndLong(Double.parseDouble(long2str));
+//            DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+//            entry.set_key(fmt.print(DateTime.now()));
+//            topRef.push().setValue(entry);
             this.calcDistance();  // code that updates the calcs.
         }
         else if (resultCode == NEW_LOCATION_REQUEST) {
@@ -225,8 +262,9 @@ public class MainActivity extends AppCompatActivity {
                 entry.setOrigLong(Double.parseDouble(long1str));
                 entry.setEndLat(Double.parseDouble(lat2str));
                 entry.setEndLong(Double.parseDouble(long2str));
+//                entry.setCalculationDate(loc.calculationDate);
                 DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
-                entry.set_key(fmt.print(DateTime.now()));
+                entry.set_key(fmt.print(loc.calculationDate));
                 topRef.push().setValue(entry);
                 this.calcDistance();  // code that updates the calcs.
             }
@@ -281,5 +319,41 @@ public class MainActivity extends AppCompatActivity {
         long1str = long1.getText().toString();
         long2str = long2.getText().toString();
     }
+
+    private ChildEventListener chEvListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            LocationLookup entry = (LocationLookup) dataSnapshot.getValue(LocationLookup.class);
+            entry._key = dataSnapshot.getKey();
+            allHistory.add(entry);
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+            LocationLookup entry = (LocationLookup) dataSnapshot.getValue(LocationLookup.class);
+            List<LocationLookup> newHistory = new ArrayList<LocationLookup>();
+            for (LocationLookup t : allHistory) {
+                if (!t._key.equals(dataSnapshot.getKey())) {
+                    newHistory.add(t);
+                }
+            }
+            allHistory = newHistory;
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };
+
 
 }
