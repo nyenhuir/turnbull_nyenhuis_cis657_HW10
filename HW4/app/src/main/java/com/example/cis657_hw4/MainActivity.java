@@ -17,12 +17,18 @@ import android.widget.TextView;
 
 import com.example.cis657_hw4.dummy.HistoryContent;
 import com.google.android.libraries.places.api.Places;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.parceler.Parcels;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
     Button CalculateButton;
     Button ClearButton;
     Button SearchButton;
+
+    DatabaseReference topRef;
+    public static List<LocationLookup> allHistory;
 
     int count =0;
 //onCreate starts up the application
@@ -94,9 +103,14 @@ public class MainActivity extends AppCompatActivity {
             }
 
             else {
-                HistoryContent.HistoryItem item = new HistoryContent.HistoryItem(lat1str,
-                        long1str, lat2str, long2str, DateTime.now());
-                HistoryContent.addItem(item);
+                LocationLookup entry = new LocationLookup();
+                entry.setOrigLat(Double.parseDouble(lat1str));
+                entry.setOrigLong(Double.parseDouble(long1str));
+                entry.setEndLat(Double.parseDouble(lat2str));
+                entry.setEndLong(Double.parseDouble(long2str));
+                DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+                entry.set_key(fmt.print(DateTime.now()));
+                topRef.push().setValue(entry);
                 calcDistance();
             }
 
@@ -121,7 +135,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Places.initialize(getApplicationContext(),"");
+        allHistory = new ArrayList<LocationLookup>();
+    }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        topRef = FirebaseDatabase.getInstance().getReference();
     }
 
 
@@ -200,9 +220,14 @@ public class MainActivity extends AppCompatActivity {
                 long1str=""+loc.origLong;
                 lat2str=""+loc.endLat;
                 long2str=""+loc.endLong;
-                HistoryContent.HistoryItem item = new HistoryContent.HistoryItem(lat1str,
-                        long1str, lat2str, long2str, loc.calculationDate);
-                HistoryContent.addItem(item);
+                LocationLookup entry = new LocationLookup();
+                entry.setOrigLat(Double.parseDouble(lat1str));
+                entry.setOrigLong(Double.parseDouble(long1str));
+                entry.setEndLat(Double.parseDouble(lat2str));
+                entry.setEndLong(Double.parseDouble(long2str));
+                DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+                entry.set_key(fmt.print(DateTime.now()));
+                topRef.push().setValue(entry);
                 this.calcDistance();  // code that updates the calcs.
             }
             else
